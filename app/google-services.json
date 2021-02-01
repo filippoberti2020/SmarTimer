@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "859382048670",
+    "project_id": "timerworkoutapp",
+    "storage_bucket": "timerworkoutapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:859382048670:android:2cce48d0498b387461588f",
+        "android_client_info": {
+          "package_name": "com.example.timerworkoutapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "859382048670-o3kkcdg0qc3bs6a0mv23vigjqfefl78h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARbtPCaSqQppu0JxD2qvBPf3lz4vDYFto"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "859382048670-o3kkcdg0qc3bs6a0mv23vigjqfefl78h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
