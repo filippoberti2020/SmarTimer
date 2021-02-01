@@ -155,8 +155,7 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         return rootView;
     }
-ItemTouchHelper.SimpleCallback simpleCallback=new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT |
-        ItemTouchHelper.RIGHT) {
+ItemTouchHelper.SimpleCallback simpleCallback=new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT ) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
             return false;
@@ -175,9 +174,7 @@ ItemTouchHelper.SimpleCallback simpleCallback=new ItemTouchHelper.SimpleCallback
                     });
                     mieiAllenamentiAdapter.notifyItemRemoved(position);
                     break;
-                case ItemTouchHelper.RIGHT:
 
-                    break;
 
             }
         }

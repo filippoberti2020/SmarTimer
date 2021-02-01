@@ -38,7 +38,14 @@ public class NuovoAllenamento extends AppCompatActivity {
         dataallenamento=findViewById(R.id.dataallenamento);
         btnAggiungi=(Button)findViewById(R.id.btnSalvaAllenamento);
         btnCancel=(Button)findViewById(R.id.btnCancel);
-
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent a = new Intent(NuovoAllenamento.this,MainActivity.class);
+                startActivity(a);
+                finish();
+            }
+        });
         btnAggiungi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
