@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class AllenamentiAdapter extends RecyclerView.Adapter <AllenamentiAdapter.MyViewHolder>{
     Context context;
     ArrayList<MieiAllenamenti> mieiAllenamenti;
-
+String z;
     public  AllenamentiAdapter (Context c,ArrayList<MieiAllenamenti> p){
         context=c;
         mieiAllenamenti=p;
@@ -35,7 +35,7 @@ public class AllenamentiAdapter extends RecyclerView.Adapter <AllenamentiAdapter
         Log.d("allenamento ",""+this.mieiAllenamenti.get(position).getTitleAllenamento());
         myViewHolder.dateAllenamento.setText(this.mieiAllenamenti.get(position).getDateAllenamento());
         myViewHolder.descAllenamento.setText(this.mieiAllenamenti.get(position).getDescAllenamento());
-
+        z= myViewHolder.dateAllenamento.getText()+"";
     }
 
     @Override
@@ -50,6 +50,23 @@ public class AllenamentiAdapter extends RecyclerView.Adapter <AllenamentiAdapter
             titleAllenamento=(TextView)itemView.findViewById(R.id.titledoes);
             dateAllenamento=(TextView)itemView.findViewById(R.id.datedoes);
             descAllenamento=(TextView)itemView.findViewById(R.id.descdoes);
+
         }
+
     }
+    public String getData()
+    {
+        String s;
+        s=z.toString();
+        return s;
+    }
+    void deleteItem(int index) {
+
+        mieiAllenamenti.remove(index);
+        notifyItemRemoved(index);
+
+
+    }
+
+
 }

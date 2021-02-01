@@ -27,6 +27,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -91,7 +92,7 @@ public class HomeFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater,@NonNull ViewGroup container,
-                             @NonNull Bundle savedInstanceState) {
+                             @NonNull Bundle savedInstanceState)  {
 
 
 
@@ -110,51 +111,54 @@ public class HomeFragment extends Fragment {
 
         ItemTouchHelper itemTouchHelper=new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(recyclerViewMieiAllen);
+        try {
+            //prendo i dati dal database
+            reference= FirebaseDatabase.getInstance().getReference().child("WorkoutApp");
+            reference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange( DataSnapshot dataSnapshot) {
+                    // set code to retrive data and replace layout
+                    for(DataSnapshot dataSnapshot1: dataSnapshot.getChildren())
+                    {
+                        MieiAllenamenti p = dataSnapshot1.getValue(MieiAllenamenti.class);
+                        Log.d("uz",""+dataSnapshot1.getValue(MieiAllenamenti.class));
+                        Log.d("uz",""+p.titleAllenamento);
+                        list.add(p);
+                    }
+                    Log.d("LISTA",""+list.toString());
+                    Context contexts = getActivity().getApplicationContext();
+                    mieiAllenamentiAdapter = new AllenamentiAdapter(contexts, list);
+                    recyclerViewMieiAllen.setAdapter(mieiAllenamentiAdapter);
+                    Log.d("","SET ADAPTER");
+                    Log.d("",mieiAllenamentiAdapter.getItemCount()+"");
+                    mieiAllenamentiAdapter.notifyDataSetChanged();
 
-        //prendo i dati dal database
-        reference= FirebaseDatabase.getInstance().getReference().child("WorkoutApp");
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange( DataSnapshot dataSnapshot) {
-                // set code to retrive data and replace layout
-                for(DataSnapshot dataSnapshot1: dataSnapshot.getChildren())
-                {
-                    MieiAllenamenti p = dataSnapshot1.getValue(MieiAllenamenti.class);
-                    Log.d("uz",""+dataSnapshot1.getValue(MieiAllenamenti.class));
-                    Log.d("uz",""+p.titleAllenamento);
-                    list.add(p);
                 }
-                Log.d("LISTA",""+list.toString());
-                Context contexts = getActivity().getApplicationContext();
-                mieiAllenamentiAdapter = new AllenamentiAdapter(contexts, list);
-                recyclerViewMieiAllen.setAdapter(mieiAllenamentiAdapter);
-                Log.d("","SET ADAPTER");
-                Log.d("",mieiAllenamentiAdapter.getItemCount()+"");
-                mieiAllenamentiAdapter.notifyDataSetChanged();
 
-            }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Toast.makeText(getActivity(), "non ci sono dati",
+                            Toast.LENGTH_LONG).show();
+                }
+            });
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(getActivity(), "non ci sono dati",
-                        Toast.LENGTH_LONG).show();
-            }
-        });
-
-
+        }catch (Exception e){}
 
         btnAddNew.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().finish();
-                Intent a =new Intent(getActivity(),NuovoAllenamento.class);
-                startActivity(a);
+                try {
 
+                    Intent a =new Intent(getActivity(),NuovoAllenamento.class);
+                    startActivity(a);
+                }catch (Exception e){}
             }
         });
+
         // Inflate the layout for this fragment
         return rootView;
     }
+
 ItemTouchHelper.SimpleCallback simpleCallback=new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT ) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -166,13 +170,50 @@ ItemTouchHelper.SimpleCallback simpleCallback=new ItemTouchHelper.SimpleCallback
            int position=viewHolder.getAdapterPosition();
             switch (direction){
                 case ItemTouchHelper.LEFT:
+                    /*
                     reference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
 
                         }
-                    });
-                    mieiAllenamentiAdapter.notifyItemRemoved(position);
+                    });*/
+
+                    Log.d("POSIZIONE",position+"");
+                    Log.d("viewHolder",viewHolder.toString()+"");
+                    Log.d("mieiAllenamentiAdapter",mieiAllenamentiAdapter.getData().toString());
+
+
+                    new Thread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            //this is a http request
+                            DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+                            Query applesQuery = ref.child("WorkoutApp").orderByChild("dateAllenamento").equalTo(mieiAllenamentiAdapter.getData().toString());
+
+                            applesQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    for (DataSnapshot appleSnapshot: dataSnapshot.getChildren()) {
+                                        appleSnapshot.getRef().removeValue();
+                                    }
+                                    mieiAllenamentiAdapter.deleteItem(position);
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                    Log.e("TAG", "onCancelled", databaseError.toException());
+                                }
+                            });
+                        }
+                    }).start();
+
+
+
+
+
+                    //     mieiAllenamentiAdapter.notifyItemRemoved(position);
+
                     break;
 
 

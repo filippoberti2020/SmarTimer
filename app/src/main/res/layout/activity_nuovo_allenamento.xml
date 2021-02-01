@@ -120,17 +120,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <EditText
+            <DatePicker
                 android:id="@+id/dataallenamento"
-                android:inputType="text"
-                android:background="@drawable/bginputtask"
-                android:paddingLeft="12dp"
-                android:textColorHint="#B5B5B5"
-                android:textColor="@color/green"
-                android:hint="Domani"
                 android:layout_width="match_parent"
-                android:layout_height="55dp" />
+                android:layout_height="80dp"
+                android:calendarViewShown="false"
+                android:theme="@style/AppTheme.Picker"
+                android:datePickerMode="spinner"
+                android:textAlignment="center" />
+
         </LinearLayout>
+
     </LinearLayout>
     <Button
         android:id="@+id/btnSalvaAllenamento"
