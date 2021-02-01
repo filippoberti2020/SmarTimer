@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".TimerFragment"
-    android:background="@color/PrimaryColorSecondoFragment">
+    android:background="#33333D">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -15,6 +15,7 @@
         android:layout_height="wrap_content"
         android:text="ORE"
         android:textSize="20dp"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.11"
@@ -24,6 +25,7 @@
 
     <TextView
         android:id="@+id/textViewMinuti"
+        android:textColor="@color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="MINUTI"
@@ -36,6 +38,7 @@
 
     <TextView
         android:id="@+id/textViewSecondi"
+        android:textColor="@color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="SECONDI"
@@ -47,18 +50,45 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.050000012" />
 
-    <com.skyfishjy.library.RippleBackground
-        android:id="@+id/content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:rb_color="#F0FFFF"
-        app:rb_duration="4000"
-        app:rb_radius="60dp"
-        app:rb_rippleAmount="1"
-        app:rb_scale="3">
+    <FrameLayout
+        android:layout_width="360dp"
+        android:layout_height="371dp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.22000003">
+
+        <com.skyfishjy.library.RippleBackground
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:rb_color="#F0FFFF"
+            app:rb_duration="4000"
+            app:rb_radius="60dp"
+            app:rb_rippleAmount="1"
+            app:rb_scale="3" />
+    </FrameLayout>
 
 
-    </com.skyfishjy.library.RippleBackground>
+    <com.mikhaellopez.circularprogressbar.CircularProgressBar
+        android:id="@+id/progress_circular"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:visibility="invisible"
+       
+        app:cpb_background_progressbar_color="@color/biancotrasparente"
+        app:cpb_background_progressbar_width="9dp"
+        app:cpb_progress_max="1"
+        app:cpb_progressbar_color="@color/green"
+        app:cpb_progressbar_width="9dp"
+        app:cpb_round_border="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.32999998" />
 
     <TextView
         android:id="@+id/textViewTimer"
@@ -66,28 +96,28 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:text=""
-        android:textColor="@color/yellow"
-        android:textSize="35dp"
-
-        android:textStyle="bold"
+        android:textColor="@color/green"
+        android:textSize="60dp"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.35000002" />
+
     <Button
         android:id="@+id/buttonInizia"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/custom_buttons"
         android:paddingLeft="60dp"
         android:paddingRight="60dp"
         android:text="INIZIA"
-        android:background="@drawable/custom_buttons"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.74" />
+        app:layout_constraintVertical_bias="0.65999997" />
 
     <Button
         android:id="@+id/buttonReset"
@@ -103,6 +133,7 @@
 
         app:layout_constraintVertical_bias="0.83" />
     <NumberPicker
+        android:theme="@style/AppTheme.Picker"
         android:id="@+id/OrePicker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -112,12 +143,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.17000002"
-
+        
 
         />
 
     <NumberPicker
         android:id="@+id/MinutiPicker"
+        android:theme="@style/AppTheme.Picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -130,6 +162,7 @@
 
     <NumberPicker
         android:id="@+id/SecondiPicker"
+        android:theme="@style/AppTheme.Picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"

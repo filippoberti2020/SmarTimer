@@ -1,5 +1,8 @@
 package com.example.timerworkoutapp;
 
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Paint;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -13,12 +16,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 import com.skyfishjy.library.RippleBackground;
 
+import java.lang.reflect.Field;
 import java.util.Locale;
 
 /**
@@ -37,33 +43,32 @@ public class TimerFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private NumberPicker orePicker;
-    private NumberPicker minutiPicker;
-    private NumberPicker secondniPicker;
-
-
-
+    private static NumberPicker orePicker; //selettore ore
+    private static NumberPicker minutiPicker;//selettore minuti
+    private static NumberPicker secondniPicker;//selettore secondi
+    private static TextView txtviewOre;//testo scritta ORE
+    private static TextView txtviewMinuti;//testo scritta MINUTI
+    private static TextView txtviewSecondi;//testo scritta SECONDI
 
     //variabili per timer
     private  int  TEMPO_DI_INIZIO_IN_MILLISECONDI = 60000;
-    private TextView TempoText;
-    private Button BottoneIniziaPausa;
-    private Button BottoneResetta;
+    private static TextView TempoText; //text view dove mostro il tempo che scorre
+    private static Button BottoneIniziaPausa; //bottone di inizio/pausa
+    private static Button BottoneResetta;//bottone resetta
     private int millisecondiTotali;
 
-    private AudioManager mAudioManager;
-
-    private Button BottoneImpostaUnMinuto;
-    private Button BottoneImpostaUnMinutoE20;
-    private Button BottoneImpostaDueMinuti;
+    private AudioManager mAudioManager; //varabile per gestire gli audio
 
 
-    private MediaPlayer sound1;
-    private MediaPlayer sound2;
-    private RippleBackground rippleBackground=null;
-    private android.os.CountDownTimer CountDownTimer;
-    private boolean TimerRunning;
+    private static int  prog=0;//progresso progress bar
+    private static MediaPlayer sound1; //suono fine
+    private MediaPlayer sound2;//secondo suono fine
+    private static RippleBackground rippleBackground=null; //offetto acqua
+    private android.os.CountDownTimer CountDownTimer; //timer
+
     private long TEMPO_RIMASTO_IN_MILLISECONDI = TEMPO_DI_INIZIO_IN_MILLISECONDI=0;
+    private static CircularProgressBar circularProgressBar; //progress bar
+    private static long  durata=1000; //durata animazione progress bar
 
     public TimerFragment() {
         // Required empty public constructor
@@ -108,14 +113,16 @@ public class TimerFragment extends Fragment {
         TempoText = rootView.findViewById(R.id.textViewTimer);
         BottoneIniziaPausa = rootView.findViewById(R.id.buttonInizia);
         BottoneResetta = rootView.findViewById(R.id.buttonReset);
-         rippleBackground=(RippleBackground)rootView.findViewById(R.id.content);//cerchio animazione acqua
+        rippleBackground=(RippleBackground)rootView.findViewById(R.id.content);//cerchio animazione acqua
 
         sound1= MediaPlayer.create(getActivity(),  R.raw.zapsplat_bell_service_disk_ring_slightly_broken_resonate_multiple_18041);
 
+        circularProgressBar = rootView.findViewById(R.id.progress_circular);
 
+        txtviewOre = rootView.findViewById(R.id.textViewOre);
+        txtviewMinuti = rootView.findViewById(R.id.textViewMinuti);
+        txtviewSecondi= rootView.findViewById(R.id.textViewSecondi);
         //-------------------------------------------------------------------//
-
-
 
         orePicker=(NumberPicker)rootView.findViewById(R.id.OrePicker);
         minutiPicker=(NumberPicker)rootView.findViewById(R.id.MinutiPicker);
@@ -136,43 +143,25 @@ public class TimerFragment extends Fragment {
         secondniPicker.setMinValue(0);
         secondniPicker.setValue(0);
 
-
-
-        Log.d("debug berti","Millisecondi: \n"+millisecondiTotali);
-
-
         BottoneIniziaPausa.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View view) {
-                if (TimerRunning)
-                    PausaTimer();
-                else
-                {
-                    if(TEMPO_RIMASTO_IN_MILLISECONDI>0)// se avevo fatto pausa e quindi ci sono ancora secondi
+              try {//se è la prima volta che schiaccia avvio il servizio tramite exception perche il timer non e ancora stato inizializato
+                    if (TimerService.TimerRunning == true)//se sta andando il timer devo fermarlo
                     {
-                        IniziaTimer();
-                        Log.d("debug berti","Tempo risdyo in mil: \n"+millisecondiTotali);
-                    }else //altrimetni riparto da zero
-                    {
-                        millisecondiTotali=(orePicker.getValue()*3600000)+(minutiPicker.getValue()*60000)+(secondniPicker.getValue()*1000);
-                        ImpostaTempo(millisecondiTotali);
-                        Log.d("debug berti","Millisecondi: \n"+millisecondiTotali);
-                        IniziaTimer();
+                        getActivity().stopService(new Intent(getActivity(), TimerService.class));
+                         PausaTimer();
                     }
-
-
-
-
-
-
-                }
+                    else {
+                        getActivity().startService(new Intent(getActivity(), TimerService.class));
+                    }
+              }catch (Exception e){getActivity().startService(new Intent(getActivity(), TimerService.class));}
 
             }
         });
 
 
-        BottoneResetta.setOnClickListener(new View.OnClickListener() {
+        BottoneResetta.setOnClickListener(new View.OnClickListener() { //resetto tutto
             @Override
             public void onClick(View view) {
                 ResettaTimer();
@@ -180,71 +169,101 @@ public class TimerFragment extends Fragment {
         });
         AggioraTestoTimer();
 
-
-
-
         // Inflate the layout for this fragment
         return rootView;
     }
 
-    private void IniziaTimer () {
-        if(TEMPO_RIMASTO_IN_MILLISECONDI==0)// se non ho impsotato un timer do un messaggio
-        {
-            Toast.makeText(getActivity(), "Devi prima impostare un timer!",
-                    Toast.LENGTH_LONG).show();
-        }else {
-            TempoText.setVisibility(View.VISIBLE);
-            rippleBackground.startRippleAnimation(); //faccio partire l'animazione waterdrop
-            CountDownTimer = new CountDownTimer(TEMPO_RIMASTO_IN_MILLISECONDI, 1000) {
-                @Override
-                public void onTick(long l) {
-                    TEMPO_RIMASTO_IN_MILLISECONDI = l;
-                    AggioraTestoTimer();
-                }
-
-                @Override
-                public void onFinish() {
-                    TimerRunning = false;
-                    BottoneIniziaPausa.setText("INIZIA");
-                    BottoneIniziaPausa.setVisibility(View.INVISIBLE);
-                    BottoneResetta.setVisibility(View.VISIBLE);
-                    rippleBackground.stopRippleAnimation();
-                    Suona();
-                }
-            }.start();
-            TimerRunning = true;
-            BottoneIniziaPausa.setText("PAUSA");
-            BottoneResetta.setVisibility(View.INVISIBLE);
-        }
-    }
-
-
-    private void Suona(){
+    private static void Suona(){
         sound1.start();
-    }
-    private void PausaTimer () {
-        CountDownTimer.cancel();
-        TimerRunning = false;
+    } //riproduco il suono
+    private void PausaTimer () { //fermo quello che stava andando
         rippleBackground.stopRippleAnimation();
         BottoneIniziaPausa.setText("RIPRENDI");
         BottoneResetta.setVisibility(View.VISIBLE);
     }
-    private void ResettaTimer () {
-        TEMPO_RIMASTO_IN_MILLISECONDI = TEMPO_DI_INIZIO_IN_MILLISECONDI;
+    private void ResettaTimer () { //resetto tutto come da schermata iniziale
+        resetProgressBar();
+        TEMPO_RIMASTO_IN_MILLISECONDI = TEMPO_DI_INIZIO_IN_MILLISECONDI=0;
+        rippleBackground.stopRippleAnimation();
         AggioraTestoTimer();
+        prog=0;
         BottoneResetta.setVisibility(View.INVISIBLE);
+        TempoText.setVisibility(View.INVISIBLE);
         BottoneIniziaPausa.setVisibility(View.VISIBLE);
         BottoneIniziaPausa.setText("INIZIA");
+        circularProgressBar.setVisibility(View.INVISIBLE);
+        secondniPicker.setVisibility(View.VISIBLE);
+        minutiPicker.setVisibility(View.VISIBLE);
+        orePicker.setVisibility(View.VISIBLE);
+        VisualizzaIntestazione();
     }
-    private void ImpostaTempo(int n){TEMPO_DI_INIZIO_IN_MILLISECONDI=n;
-        TEMPO_RIMASTO_IN_MILLISECONDI=n;}
 
     private void AggioraTestoTimer () {
         int minuti = (int) (TEMPO_RIMASTO_IN_MILLISECONDI / 1000) / 60;
         int secondi = (int) (TEMPO_RIMASTO_IN_MILLISECONDI / 1000) % 60;
         String TempoRimastoFormattato = String.format(Locale.getDefault(), "%02d:%02d", minuti, secondi);
         TempoText.setText(TempoRimastoFormattato);
+    }
 
+    public void VisualizzaIntestazione(){ //riemto in vista la scritta ORE MINUTI E SECONDI
+        txtviewOre.setVisibility(View.VISIBLE);
+        txtviewMinuti.setVisibility(View.VISIBLE);
+        txtviewSecondi.setVisibility(View.VISIBLE);
+    }
 
+    //--------------------------------------------------
+    public static String getcurrentTime()//ritorno il tempo corrente
+    {
+        return TempoText.getText()+"";
+    }
+    public static void setTxtTempoVisibile(){ //imposto tutto per mostrare solo la progressbar e il tempo
+        int millisecondiTotali=(orePicker.getValue()*3600000)+(minutiPicker.getValue()*60000)+(secondniPicker.getValue()*1000);
+        TempoText.setVisibility(View.VISIBLE);
+        circularProgressBar.setProgressMax(millisecondiTotali/1000);
+        circularProgressBar.setVisibility(View.VISIBLE);
+        secondniPicker.setVisibility(View.INVISIBLE);
+        minutiPicker.setVisibility(View.INVISIBLE);
+        orePicker.setVisibility(View.INVISIBLE);
+        txtviewOre.setVisibility(View.INVISIBLE);
+        txtviewMinuti.setVisibility(View.INVISIBLE);
+        txtviewSecondi.setVisibility(View.INVISIBLE);
+    }
+    public static void onFinish(){// quando finisce il timer faccio riporodurre il suono e faccio partire l'animazione
+        resetProgressBar();
+        prog=0;//rimposto il punto di partenza della progress bar
+        BottoneIniziaPausa.setText("INIZIA");
+        BottoneIniziaPausa.setVisibility(View.INVISIBLE);
+        BottoneResetta.setVisibility(View.VISIBLE);
+        circularProgressBar.setVisibility(View.INVISIBLE);
+        rippleBackground.startRippleAnimation(); //faccio partire l'animazione waterdrop
+        Suona();
+    }
+    public static void onInizio(){//se schiaccia su inizio metto il pulsante su pausa e nascondo il pulsante resetta
+        BottoneIniziaPausa.setText("PAUSA");
+        BottoneResetta.setVisibility(View.INVISIBLE);
+    }
+    public static void setText(String a){
+        TempoText.setText(a);
+    }//per impostare il tempo corrente
+    public static int getOrePicker(){//per prendere le ore impostate
+       return orePicker.getValue();
+    }
+    public static int getMinutiPicker(){//per prendere i minuti impostati
+        return minutiPicker.getValue();
+    }
+    public static int getSecondiPicker(){//per prendere i secondi impostati
+        return secondniPicker.getValue();
+    }
+    public static void messaggioInput(Context context){//messagio per input non valido
+        Toast.makeText(context, "Devi prima impostare un timer!",
+                Toast.LENGTH_LONG).show();
+    }
+    public static void aggiornaProgressBar(){//aggiorno il progresso della progress bar
+        prog=prog+1;
+        circularProgressBar.setProgressWithAnimation(prog, durata);
+    }
+    public static void resetProgressBar(){//resetto la progress bar a default
+       long aus=0;
+        circularProgressBar.setProgressWithAnimation(0, aus);
     }
 }

@@ -4,6 +4,7 @@
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
     <color name="PrimaryColor">#1B1E27</color>
+    <color name="PrimaryColormoreclear">#242833</color>
     <color name="PrimaryColor2">#1F1F1F</color>
     <color name="BluScuro">#192B75</color>
     <color name="AzzurroChiaro">#94C5FF</color>
@@ -16,9 +17,12 @@
     <color name="scuro">#AEA9A9</color>
     <color name="white">#FFFFFFFF</color>
     <color name="green">#8BFA0D</color>
-    <color name="tabas">#303727</color>
+    <color name="tabas">#33333D</color>
     <color name="rosso">#FF0000</color>
+    <color name="ciano">#00FFB7</color>
     <color name="azzurro">#0099FF</color>
     <color name="arancione">#F46236</color>
     <color name="yellow">#FFF200</color>
+    <color name="yelldow">#212329</color>
+    <color name="biancotrasparente">#40ffffff</color>
 </resources>

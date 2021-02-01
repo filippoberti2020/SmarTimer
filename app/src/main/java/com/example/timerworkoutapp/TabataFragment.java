@@ -1,5 +1,6 @@
 package com.example.timerworkoutapp;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.ColorSpace;
 import android.media.MediaPlayer;
@@ -17,6 +18,8 @@ import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
 import java.util.Locale;
 
@@ -37,31 +40,32 @@ public class TabataFragment extends Fragment {
     private String mParam2;
     private  View rootView;
 
-    private NumberPicker setsPicker;
-    private NumberPicker minutiWorkPicker;
-    private NumberPicker secondiWorkPicker;
-    private NumberPicker minutiRestPicker;
-    private NumberPicker secondiRestPicker;
-    private Button BottoneIniziaPaus;
+    private static NumberPicker setsPicker;//selettore round  di lavoro
+    private static NumberPicker minutiWorkPicker; //selettore minuti di lavoro
+    private static NumberPicker secondiWorkPicker;//selettore secondi di lavoro
+    private static NumberPicker minutiRestPicker;//selettore minuti di riposo
+    private static NumberPicker secondiRestPicker;//selettore secondi di riposo
+    private static Button BottoneIniziaPaus;//bottono inizio pausa
 
-    private long millisecondiReps;
-    private long TEMPO_RIMASTO_IN_MILLISECONDI_REPS;
-    private long TEMPO_RIMASTO_IN_MILLISECONDI_PAUSA=5000;
-    private TextView SetsTxt;
-    private TextView timeTxt;
-    private TextView messageTxt;
-    protected Button Exit;
-    private MediaPlayer sound1,sound2,sound;
+    private long TEMPO_RIMASTO_IN_MILLISECONDI_PAUSA=5000;//tempo di pausa/preparazione prima di partire con l'allenamento
+    private static TextView SetsTxt;//text view dove mostro i round
+    private static TextView timeTxt;//text view con scritta WORK TIME
+    private static TextView showTime;//text view dove mostro il tempo
+    private static TextView messageTxt;//text view dove mostro i messaggi per l'utente
+    private static TextView ScrittaRoundTxt;//text view con scritta ROUND
+    private static TextView ScrittaRoundBassaTxt;//text view in basso a destracon scritta ROUND
+    private static MediaPlayer sound1;
+    private static MediaPlayer sound2;
+    private static MediaPlayer sound;
     private  long aus1,aus2;
     private ConstraintLayout mConstraintLayout;
-
-
+    private static TextView txtMinuti;//text view con scritta MINUTI
+    private static TextView txtSecondi;//text view con scritta SECONDI
+    private static TextView restTxt;//text view del messaggio REST TIME
     public static long  TEMPO_DI_INIZIO_IN_MILLISECONDI=0 ;
     public static long TEMPO_DI_INIZIO_IN_MILLISECONDI_REPS=0;
-    private long millisecondiReps2;
-    private long TEMPO_RIMASTO_IN_MILLISECONDI_REPS2;
-
-    public static int reps=0;
+    private static CircularProgressBar circularProgressBar1,circularProgressBar2;// progress bar 1 per il tempoo la due per il contorno delle reps
+    public static int reps=0;//variabile dove salvo il numero delle reps/round
 
 
     public TabataFragment() {
@@ -100,7 +104,7 @@ public class TabataFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-         rootView = inflater.inflate(R.layout.fragment_tabata, container, false);
+        rootView = inflater.inflate(R.layout.fragment_tabata, container, false);
         mConstraintLayout = (ConstraintLayout)rootView.findViewById(R.id.gang);
         setsPicker=(NumberPicker)rootView.findViewById(R.id.SetsPicker);
         minutiWorkPicker=(NumberPicker)rootView.findViewById(R.id.MinutiWorkPicker);
@@ -108,7 +112,10 @@ public class TabataFragment extends Fragment {
         minutiRestPicker=(NumberPicker)rootView.findViewById(R.id.MinutiRestPicker);
         secondiRestPicker=(NumberPicker)rootView.findViewById(R.id.SecondiRestPicker);
         BottoneIniziaPaus=(Button)rootView.findViewById(R.id.buttonIniziaTabata);
-
+        txtMinuti=(TextView)rootView.findViewById(R.id.textViewMinutiTabata);
+        txtSecondi=(TextView)rootView.findViewById(R.id.textViewMinutiTabata2);
+        circularProgressBar1 = rootView.findViewById(R.id.progress_circular);
+        circularProgressBar2= rootView.findViewById(R.id.progress_circular2);
         setsPicker.setMaxValue(30);
         setsPicker.setMinValue(0);
         setsPicker.setValue(0);
@@ -128,10 +135,13 @@ public class TabataFragment extends Fragment {
         secondiRestPicker.setMaxValue(60);
         secondiRestPicker.setMinValue(0);
         secondiRestPicker.setValue(0);
-
-        SetsTxt= rootView.findViewById(R.id.textViewSets);
+        ScrittaRoundTxt= rootView.findViewById(R.id.textViewSets);//textview scritta round
+        ScrittaRoundBassaTxt= rootView.findViewById(R.id.textViewRoundText);//textview scritta round usata in basso a destra
+        SetsTxt= rootView.findViewById(R.id.textViewRound);
         timeTxt= rootView.findViewById(R.id.textViewWorkTime);
-        messageTxt= rootView.findViewById(R.id.textViewRest);
+        showTime= rootView.findViewById(R.id.textViewShowTempo);
+        messageTxt= rootView.findViewById(R.id.textViewMessageGuide);
+        restTxt= rootView.findViewById(R.id.textViewRest);
         sound1=MediaPlayer.create(getActivity(),R.raw.suonoprefine);
         sound=MediaPlayer.create(getActivity(),  R.raw.suonoprefine);
         sound2= MediaPlayer.create(getActivity(),  R.raw.suonofine);
@@ -141,210 +151,172 @@ public class TabataFragment extends Fragment {
         BottoneIniziaPaus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
+                try
+                {
                 TEMPO_DI_INIZIO_IN_MILLISECONDI=minutiWorkPicker.getValue()*60000+secondiWorkPicker.getValue()*1000; //salvo il tempo di work che vuole fare
                 TEMPO_DI_INIZIO_IN_MILLISECONDI_REPS  = minutiRestPicker.getValue()*60000+secondiRestPicker.getValue()*1000;                           //salvo il tempo di riposo che vuole fare
                 reps=setsPicker.getValue();   //salvo le reps che vuole fare
-
                 } catch (Exception e) {  }
-                if(TEMPO_DI_INIZIO_IN_MILLISECONDI!=0 &&TEMPO_DI_INIZIO_IN_MILLISECONDI_REPS!=0 && reps>0)
+                if(TEMPO_DI_INIZIO_IN_MILLISECONDI!=0 &&TEMPO_DI_INIZIO_IN_MILLISECONDI_REPS!=0 && reps>0)//se ha impostati i dati corretamente
                 {
-                    IniziaTimer();
-                }
-
+                    if(messageTxt.getText()=="FINE") //SE SCHIACCIA SU RESETTA
+                    {
+                        TEMPO_RIMASTO_IN_MILLISECONDI_PAUSA=5000;
+                        SetsTxt.setText("ROUND");
+                        messageTxt.setText("FINE");
+                        BottoneIniziaPaus.setText("INIZIA");
+                        txtMinuti.setVisibility(View.VISIBLE);
+                        txtSecondi.setVisibility(View.VISIBLE);
+                        minutiWorkPicker.setVisibility(View.VISIBLE);
+                        secondiWorkPicker.setVisibility(View.VISIBLE);
+                        minutiRestPicker.setVisibility(View.VISIBLE);
+                        secondiRestPicker.setVisibility(View.VISIBLE);
+                       setsPicker.setVisibility(View.VISIBLE);
+                        timeTxt.setText("WORK TIME");
+                        messageTxt.setText("REST TIME");
+                    }
+                    else//altrimenti devo fare partire il timer
+                        getActivity().startService(new Intent(getActivity(), TabataService.class));
+                }//se i dati non sono validi lo faccio notare all'utente
                 else
                     Toast.makeText(getActivity(), "Dati non validi!",
                             Toast.LENGTH_LONG).show();
-
             }
         });
-
-
         // Inflate the layout for this fragment
         return rootView;
     }
-    private void IniziaTimer () {
+
+    protected static void AggiornaTestoWork(String n){//aggiorno il tempo corrente
+        showTime.setTextColor(Color.YELLOW);
+        showTime.setText(n);
+    }
+    protected static void AggiornaTestoRest(String n){//aggiorno il tempo corrente
+        showTime.setTextColor(Color.BLUE);
+        showTime.setText(n);
+    }
+    public static void Suona(){
+        sound1.start();
+    }//riproduco il suono
+    public static void Suona2(){
+        sound.start();
+    }//riproduco il suono
+    public static void SuonaFine(){
+        sound2.start();
+    }//riproduco il suono
+    protected static void AggiornaReps(String a){//aggiorno il numero di round/reps mancanti
+        SetsTxt.setText(a);
+    }
+    protected static void MessaggioWork(){//messaggio di info all'utente
+        messageTxt.setText("WORK");
+    }
+    protected static void MessaggioPausa(){//messaggio di info all'utente
+        messageTxt.setText("PREPARATI");
+    }
+    protected static void MessaggioRest(){//messaggio di info all'utente
+        messageTxt.setText("RECUPERO");
+    }
+    protected static void Fine(){//quando finisce il timer
+        SetsTxt.setText("0");
+        messageTxt.setText("ALLENAMENTO FINITO");
+        BottoneIniziaPaus.setText("RESETTA");
+        BottoneIniziaPaus.setVisibility(View.VISIBLE);
+        circularProgressBar1.setVisibility(View.INVISIBLE);
+        circularProgressBar2.setVisibility(View.INVISIBLE);
+        ScrittaRoundBassaTxt.setVisibility(View.INVISIBLE);
+        SetsTxt.setVisibility(View.INVISIBLE);
+    }
+
+    //--------------------------------------------------------
+    public static void AggiornaTestoPausa2(String n){//mostro il tempo di pre-inizio rimasto
+
+        showTime.setTextColor(Color.WHITE);
+        showTime.setText(n);
+    }
+    public static int getMinutiWorkPicker(){//ritorno il numero di minuti di lavoro selezionati
+
+        return minutiWorkPicker.getValue();
+    }
+    public static int getSecondiWorkPicker(){//ritorno il numero di secondi di lavoro selezionati
+
+        return secondiWorkPicker.getValue();
+    }
+    public static int getMinutiRestPicker(){//ritorno il numero di minuti di riposo selezionati
+
+        return minutiRestPicker.getValue();
+    }
+    public static int getSecondiRestPicker(){//ritorno il numero di secondi di riposo selezionati
+
+        return secondiRestPicker.getValue();
+    }
+    public static int getReps(){//ritorno il numero di round/reps selezionati
+
+        return setsPicker.getValue();
+    }
+    public static String getMessageTxt(){//ritorno il messaggio di info che ce al momento
+
+        return messageTxt.getText()+"";
+    }
+    public static void setAll2(){//quando viene premuto il pulsante resetta
+        SetsTxt.setVisibility(View.INVISIBLE);
+        messageTxt.setText("FINE");
+        BottoneIniziaPaus.setText("INIZIA");
+        txtMinuti.setVisibility(View.VISIBLE);
+        txtSecondi.setVisibility(View.VISIBLE);
+        minutiWorkPicker.setVisibility(View.VISIBLE);
+        secondiWorkPicker.setVisibility(View.VISIBLE);
+        minutiRestPicker.setVisibility(View.VISIBLE);
+        secondiRestPicker.setVisibility(View.VISIBLE);
+        setsPicker.setVisibility(View.VISIBLE);
+        restTxt.setVisibility(View.VISIBLE);
+        ScrittaRoundTxt.setVisibility(View.VISIBLE);
+        showTime.setVisibility(View.INVISIBLE);
+        messageTxt.setVisibility(View.INVISIBLE);
+        timeTxt.setText("WORK TIME");
+        messageTxt.setText("REST TIME");
+        circularProgressBar2.setVisibility(View.INVISIBLE);
+        ScrittaRoundBassaTxt.setVisibility(View.INVISIBLE);
+    }
+    public static void setAll(){//funzione che chiamo all'inizio del timer
+        timeTxt.setVisibility(View.INVISIBLE);
         setsPicker.setVisibility(View.INVISIBLE);
         minutiWorkPicker.setVisibility(View.INVISIBLE);
         secondiWorkPicker.setVisibility(View.INVISIBLE);
         minutiRestPicker.setVisibility(View.INVISIBLE);
         secondiRestPicker.setVisibility(View.INVISIBLE);
-        AggiornaReps();
-        MessaggioPausa();
-        SetOrangeBackground();
-        CountDownTimer CountDownTimer = new CountDownTimer(TEMPO_RIMASTO_IN_MILLISECONDI_PAUSA, 1000) {
-            @Override
-            public void onTick(long l) {
-                TEMPO_RIMASTO_IN_MILLISECONDI_PAUSA = l;
-                AggiornaTestoPausa();
-                if(TEMPO_RIMASTO_IN_MILLISECONDI_PAUSA/1000==2)
-                    Suona();
-                if(TEMPO_RIMASTO_IN_MILLISECONDI_PAUSA/1000==1)
-                    Suona2();
-            }
-
-            @Override
-            public void onFinish() {
-
-                SuonaFine();
-                Main();
-            }
-        }.start();
+        BottoneIniziaPaus.setVisibility(View.INVISIBLE);
+        txtMinuti.setVisibility(View.INVISIBLE);
+        txtSecondi.setVisibility(View.INVISIBLE);
+        showTime.setVisibility(View.VISIBLE);
+        restTxt.setVisibility(View.INVISIBLE);
+        ScrittaRoundTxt.setVisibility(View.INVISIBLE);
+        circularProgressBar2.setVisibility(View.VISIBLE);
+        ScrittaRoundBassaTxt.setVisibility(View.VISIBLE);
+        SetsTxt.setVisibility(View.VISIBLE);
 
     }
-    private void Main(){
-        Timer1();
+    public static void setInizioProgressBar(long millisecondiTotali){//preparo e mostro la progress bar
+        circularProgressBar1.setProgressMax(millisecondiTotali/1000);
+        circularProgressBar1.setVisibility(View.VISIBLE);
     }
-    private void Timer1(){
-        SetGreenBackground();
-        MessaggioWork();
-        AggiornaReps();
-        CountDownTimer CountDownTimer = new CountDownTimer(TEMPO_DI_INIZIO_IN_MILLISECONDI, 1000) {
-            @Override
-            public void onTick(long l) {
-                aus1 = l;
-                AggiornaTestoWork();
-                if (aus1 / 1000 == 2)
-                    Suona();
-                if (aus1 / 1000 == 1)
-                    Suona2();
-            }
-
-            @Override
-            public void onFinish() {
-
-                SuonaFine();
-                Timer2();
-            }
-        }.start();
+    public static void aggiornaProgressBarPreInizio(int n){//mostro il progresso della progress bar
+        circularProgressBar1.setProgressBarColor(Color.WHITE);
+        long durata=1000; //durata animazione progress bar
+        circularProgressBar1.setProgressWithAnimation(n, durata);
+    }
+    public static void aggiornaProgressBarWork(int n){//mostro il progresso della progress bar
+        circularProgressBar1.setProgressBarColor(Color.YELLOW);
+        long durata=1000; //durata animazione progress bar
+        circularProgressBar1.setProgressWithAnimation(n, durata);
+    }
+    public static void aggiornaProgressBarRest(int n){//mostro il progresso della progress bar
+        circularProgressBar1.setProgressBarColor(Color.BLUE);
+        long durata=1000; //durata animazione progress bar
+        circularProgressBar1.setProgressWithAnimation(n, durata);
+    }
+    public static void azzeraProgressBar(){//reset della progress bar
+        long durata=0; //durata animazione progress bar
+        circularProgressBar1.setProgressWithAnimation(0, durata);
     }
 
-    private void Timer2(){
-
-        if(reps!=1) {
-            SetRedBackground();
-            MessaggioRest();
-            CountDownTimer CountDownTimer = new CountDownTimer(TEMPO_DI_INIZIO_IN_MILLISECONDI_REPS, 1000) {
-                @Override
-                public void onTick(long l) {
-                    aus2 = l;
-                    AggiornaTestoRest();
-                    if (aus2 / 1000 == 2)
-                        Suona();
-                    if (aus2 / 1000 == 1)
-                        Suona2();
-                }
-
-                @Override
-                public void onFinish() {
-
-                    SuonaFine();
-                    aus1 = TEMPO_DI_INIZIO_IN_MILLISECONDI;
-                    aus2 = TEMPO_DI_INIZIO_IN_MILLISECONDI_REPS;
-                    reps--;
-                    if (reps != 0)
-                        Main();
-                    else
-                        SetDefaultBackground();
-                }
-            }.start();
-        }
-        else
-            Fine();
-    }
-
-    private void AggiornaTestoWork(){
-        int minuti = (int) (aus1/ 1000) / 60;
-        int secondi = (int) (aus1/ 1000) % 60;
-        String TempoRimastoFormattato = String.format(Locale.getDefault(), "%02d:%02d", minuti, secondi);
-        timeTxt.setText(TempoRimastoFormattato);
-    }
-    private void AggiornaTestoRest(){
-        int minuti = (int) (aus2 / 1000) / 60;
-        int secondi = (int) (aus2 / 1000) % 60;
-        String TempoRimastoFormattato = String.format(Locale.getDefault(), "%02d:%02d", minuti, secondi);
-        timeTxt.setText(TempoRimastoFormattato);
-    }
-    private void AggiornaTestoPausa(){
-        int minuti = (int) (TEMPO_RIMASTO_IN_MILLISECONDI_PAUSA / 1000) / 60;
-        int secondi = (int) (TEMPO_RIMASTO_IN_MILLISECONDI_PAUSA / 1000) % 60;
-        String TempoRimastoFormattato = String.format(Locale.getDefault(), "%02d:%02d", minuti, secondi);
-        timeTxt.setText(TempoRimastoFormattato);
-    }
-    private void Suona(){
-        sound1.start();
-    }
-    private void Suona2(){
-        sound.start();
-    }
-    private void SuonaFine(){
-        sound2.start();
-    }
-    private void AggiornaReps(){
-        String a = Integer.toString(reps);
-        SetsTxt.setText(a);
-    }
-    private void SetDefaultBackground(){
-        mConstraintLayout.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.tabas));
-    }
-    private void SetOrangeBackground(){
-        mConstraintLayout.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.arancione));
-        MessaggioPausa();
-    }
-    private void SetGreenBackground(){
-        mConstraintLayout.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.green));
-    }
-    private void SetRedBackground(){
-        mConstraintLayout.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.rosso));
-    }
-    private void SetFinishBackground(){
-        mConstraintLayout.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.azzurro));
-    }
-
-
-
-    private void MessaggioWork(){
-        messageTxt.setText("WORK");
-    }
-    private void MessaggioPausa(){
-        messageTxt.setText("PREPARATI");
-    }
-    private void MessaggioRest(){
-        messageTxt.setText("RECUPERO");
-    }
-    private void Fine(){
-        SetsTxt.setText("0");
-        SetFinishBackground();// cambio sfondo per far vedere che ha finito
-        messageTxt.setText("FINE");
-        BottoneIniziaPaus.setText("RESETTA");
-    }
-
-    private void BacktoHome(){
-    //    Intent intent =new Intent(this,Activity2.class);
-  //      startActivity(intent);
-    }
-
-
-/*
-    private void AggiornaReps(){RepsText.setText(reps+"");}
-    private void Home () {
-        int minuti = 0;
-        int secondi =0;
-        int minuti2 = 0;
-        int secondi2 =0;
-        String TempoRimastoFormattato = String.format(Locale.getDefault(), "%02d:%02d", minuti, secondi);
-        String TempoRimastoFormattato2 = String.format(Locale.getDefault(), "%02d:%02d", minuti2, secondi2);
-        TempoWorkText.setText(TempoRimastoFormattato);
-        TempoRestText.setText(TempoRimastoFormattato2);
-    }
-    private void ResettaTimer () {
-        int minuti = 0;
-        int secondi =0;
-        int minuti2 = 0;
-        int secondi2 =0;
-        String TempoRimastoFormattato = String.format(Locale.getDefault(), "%02d:%02d", minuti, secondi);
-        String TempoRimastoFormattato2 = String.format(Locale.getDefault(), "%02d:%02d", minuti2, secondi2);
-        TempoWorkText.setText(TempoRimastoFormattato);
-        TempoRestText.setText(TempoRimastoFormattato2);
-    }*/
 }

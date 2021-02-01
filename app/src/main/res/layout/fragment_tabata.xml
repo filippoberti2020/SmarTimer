@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/gang"
     tools:context=".TabataFragment"
-    android:background="@color/tabas">
+    android:background="#33333D">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -15,6 +15,7 @@
         android:id="@+id/textViewSets"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/white"
         android:text="ROUND"
         android:textSize="15dp"
 
@@ -29,6 +30,7 @@
         android:id="@+id/textViewMinutiTabata"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/white"
         android:text="MINUTI"
         android:textSize="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -42,6 +44,7 @@
         android:id="@+id/textViewMinutiTabata2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/white"
         android:text="SECONDI"
         android:textSize="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -51,13 +54,14 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.37" />
 
+
     <TextView
         android:id="@+id/textViewWorkTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="WORK TIME"
         android:textSize="15dp"
-
+        android:textColor="@color/white"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -66,12 +70,63 @@
         app:layout_constraintVertical_bias="0.26999998" />
 
     <TextView
+        android:id="@+id/textViewShowTempo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="00:00"
+        android:textColor="@color/white"
+        android:textSize="80dp"
+        android:textStyle="bold"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.31" />
+
+    <com.mikhaellopez.circularprogressbar.CircularProgressBar
+        android:id="@+id/progress_circular"
+        android:layout_width="300dp"
+        android:layout_height="3000dp"
+        android:visibility="invisible"
+
+        app:cpb_background_progressbar_color="@color/biancotrasparente"
+        app:cpb_background_progressbar_width="9dp"
+        app:cpb_progress_max="1"
+        app:cpb_progressbar_color="@color/white"
+        app:cpb_progressbar_width="9dp"
+        app:cpb_round_border="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.25" />
+
+    <com.mikhaellopez.circularprogressbar.CircularProgressBar
+        android:id="@+id/progress_circular2"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        app:cpb_background_progressbar_color="@color/biancotrasparente"
+        android:visibility="invisible"
+        app:cpb_background_progressbar_width="1dp"
+        app:cpb_progress="2"
+        app:cpb_progress_max="2"
+        app:cpb_progressbar_color="@color/white"
+        app:cpb_progressbar_width="2dp"
+        app:cpb_round_border="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.87"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.68" />
+    <TextView
         android:id="@+id/textViewRest"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="REST"
+        android:text="REST TIME"
         android:textSize="15dp"
-
+        android:textColor="@color/white"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -79,11 +134,58 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.55" />
 
+    <TextView
+        android:id="@+id/textViewRoundText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ROUND:"
+        android:visibility="invisible"
+        android:textColor="@color/white"
+        android:textSize="8dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.82"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.63" />
+
+    <TextView
+        android:id="@+id/textViewRound"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:text="5"
+        android:textColor="@color/white"
+        android:textSize="30dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.81"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.67" />
+
+    <TextView
+        android:id="@+id/textViewMessageGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textColor="@color/white"
+        android:textSize="15dp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.49" />
+
 
     <NumberPicker
         android:id="@+id/SetsPicker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.Picker"
         android:scaleX="0.75"
         android:scaleY="0.75"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -94,6 +196,7 @@
 
     <NumberPicker
         android:id="@+id/MinutiWorkPicker"
+        android:theme="@style/AppTheme.Picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:scaleX="0.75"
@@ -108,6 +211,7 @@
     <NumberPicker
         android:id="@+id/SecondiWorkPicker"
         android:layout_width="wrap_content"
+        android:theme="@style/AppTheme.Picker"
         android:layout_height="wrap_content"
         android:scaleX="0.75"
         android:scaleY="0.75"
@@ -123,6 +227,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:scaleX="0.75"
+        android:theme="@style/AppTheme.Picker"
         android:scaleY="0.75"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -137,6 +242,7 @@
         android:layout_height="wrap_content"
         android:scaleX="0.75"
         android:scaleY="0.75"
+        android:theme="@style/AppTheme.Picker"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.3"
@@ -151,6 +257,8 @@
         android:background="@drawable/custom_buttons"
         android:paddingLeft="60dp"
         android:paddingRight="60dp"
+
+
         android:text="INIZIA"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
